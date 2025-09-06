@@ -68,7 +68,7 @@
         <input type="text" id="recibe" class="border p-2 rounded w-full" />
       </div>
     </div>
-    <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700">Guardar Pedido</button>
+    <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded hover:bg-blue-700">Guardar Pedido</button>
   </form>
 
   <!-- MENSAJE ALERTA -->
@@ -105,7 +105,7 @@
     const notificacion = document.getElementById('notificacion');
 
     const pedidos = {};
-    const scriptURL = "https://script.google.com/macros/s/AKfycbw7zkyAMxO1-24-L3fg0OoTfYBEhYrggULG1_M9D04daVrxpc3r_a8CS0dM7zQMsuUh/exec";
+    const scriptURL = "https://script.google.com/macros/s/AKfycbzRsXOcvkHlGO05itwcV8PPkj-r3OLFplPYOqNVS1ABSuHyDo45pxPGd2bk2sqo61ro/exec";
 
     estado.addEventListener('change', () => {
       tiempoEstimadoDiv.classList.toggle('hidden', estado.value !== 'en espera');
@@ -134,7 +134,19 @@
       const factura = document.getElementById('factura').value;
       const recibe = document.getElementById('recibe').value.trim();
 
-      pedidos[id] = { cliente, vendedor, chofer, estado: estadoVal, tiempoEstimado, salida, entrega, recibe, factura };
+      // Guardamos en memoria local
+      pedidos[id] = { 
+        numeroPedido: id,  // 👈 se envía a Google Sheets
+        cliente, 
+        vendedor, 
+        chofer, 
+        estado: estadoVal, 
+        tiempoEstimado, 
+        salida, 
+        entrega, 
+        recibe, 
+        factura 
+      };
 
       if (estadoVal === 'sin receptor') {
         notificacion.classList.remove('hidden');
@@ -150,7 +162,7 @@
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(pedidos[id])
+        body: JSON.stringify(pedidos[id]) // 👈 aquí va numeroPedido y factura también
       }).then(() => {
         console.log("✅ Datos enviados a Google Sheets");
       }).catch(err => console.error("❌ Error al enviar a Sheets:", err));
@@ -165,7 +177,7 @@
       for (const [id, data] of Object.entries(pedidos)) {
         tablaPedidos.innerHTML += `
           <tr class="text-center">
-            <td class="border p-1">${id}</td>
+            <td class="border p-1">${data.numeroPedido}</td>
             <td class="border p-1">${data.cliente}</td>
             <td class="border p-1">${data.vendedor}</td>
             <td class="border p-1">${data.estado}</td>
@@ -182,3 +194,4 @@
   </script>
 </body>
 </html>
+
